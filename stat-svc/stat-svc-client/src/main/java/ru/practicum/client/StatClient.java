@@ -1,7 +1,7 @@
 package ru.practicum.client;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -16,11 +16,16 @@ import java.util.List;
 
 @Component
 @Slf4j
-@RequiredArgsConstructor
 public class StatClient {
     private final RestClient restClient;
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public StatClient(@Value("${stat-svc-service.url}") String statServiceUrl) {
+        restClient = RestClient.builder()
+                .baseUrl(statServiceUrl)
+                .build();
+    }
 
     public void saveHit(EndpointHit hit) {
         try {
