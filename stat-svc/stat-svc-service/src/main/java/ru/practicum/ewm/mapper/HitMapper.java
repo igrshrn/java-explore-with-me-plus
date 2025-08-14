@@ -11,10 +11,10 @@ import java.time.format.DateTimeFormatter;
 
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface HitMapper {
-    @Mapping(target = "timestamp", expression = "java(this.createdAtToTimestamp(hit.getCreatedAt()))")
+    @Mapping(target = "timestamp", source = "createdAt")
     EndpointHit toDto(Hit hit);
 
-    @Mapping(target = "createdAt", expression = "java(this.timestampToLocalDateTime(dto.getTimestamp()))")
+    @Mapping(target = "createdAt", source = "timestamp")
     Hit toEntity(EndpointHit dto);
 
     default LocalDateTime timestampToLocalDateTime(String timestamp) {
