@@ -14,4 +14,5 @@ public interface HitMapper {
 
     @Mapping(target = "createdAt", source = "timestamp")
     Hit toEntity(EndpointHit dto);
+
 }
