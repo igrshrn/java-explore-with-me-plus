@@ -1,17 +1,10 @@
 package ru.practicum.ewm.dto;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.FieldDefaults;
+public interface ViewStats {
 
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
-public class ViewStats {
-    String app;
-    String uri;
-    Long hits;
+    String getApp();
+
+    String getUri();
+
+    Long getHits();
 }
