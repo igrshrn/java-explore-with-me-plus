@@ -2,6 +2,7 @@ package ru.practicum.client;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
@@ -61,7 +62,7 @@ public class StatClient {
                     .uri(builder.build().toUri())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .body(List.class);
+                    .body(new ParameterizedTypeReference<>() {});
         } catch (Exception e) {
             log.error("Ошибка при получении статистики {}", e.getMessage(), e);
             return Collections.emptyList();
