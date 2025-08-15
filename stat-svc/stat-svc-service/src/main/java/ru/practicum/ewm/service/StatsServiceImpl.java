@@ -10,10 +10,8 @@ import ru.practicum.ewm.entity.Hit;
 import ru.practicum.ewm.mapper.HitMapper;
 import ru.practicum.ewm.repository.HitRepository;
 
-import javax.swing.text.View;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

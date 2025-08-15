@@ -28,7 +28,7 @@ class StatsServiceImplTest {
     private EndpointHit dto;
 
     private LocalDateTime now;
-    
+
     private static final String URI = "/address";
 
     @BeforeEach
