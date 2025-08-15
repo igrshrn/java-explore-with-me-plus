@@ -26,22 +26,15 @@ public class Hit {
     @Column(name = "id", nullable = false)
     Integer id;
 
-    @Size(max = 255)
-    @NotNull
     @Column(name = "app", nullable = false)
     String app;
 
-    @Size(max = 255)
-    @NotNull
     @Column(name = "uri", nullable = false)
     String uri;
 
-    @Size(max = 255)
-    @NotNull
     @Column(name = "ip", nullable = false)
     String ip;
 
-    @NotNull
     @Column(name = "created_at", nullable = false)
     LocalDateTime createdAt;
 
