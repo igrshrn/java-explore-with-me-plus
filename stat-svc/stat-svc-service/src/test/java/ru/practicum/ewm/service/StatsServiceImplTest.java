@@ -3,11 +3,20 @@ package ru.practicum.ewm.service;
 import com.github.javafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Primary;
+import org.springframework.test.context.ContextConfiguration;
 import ru.practicum.ewm.dto.EndpointHit;
 import ru.practicum.ewm.dto.ViewStats;
+import ru.practicum.ewm.mapper.HitMapper;
+import ru.practicum.ewm.repository.HitRepository;
+import ru.practicum.ewm.service.DataBaseConnection.TestContainer;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,9 +25,27 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@SpringBootTest
-@Transactional
+@DataJpaTest
+@ExtendWith(TestContainer.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ContextConfiguration(initializers = TestContainer.class)
 class StatsServiceImplTest {
+
+    @TestConfiguration
+    static class Config {
+
+        @Bean
+        @Primary
+        public StatsServiceImpl statsService(HitRepository repository, HitMapper mapper) {
+            return new StatsServiceImpl(repository, mapper);
+        }
+
+        @Bean
+        @Primary
+        public HitMapper mapper() {
+            return Mappers.getMapper(HitMapper.class);
+        }
+    }
 
     @Autowired
     private StatsServiceImpl statsService;
