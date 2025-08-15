@@ -6,22 +6,12 @@ import org.mapstruct.MappingConstants;
 import ru.practicum.ewm.dto.EndpointHit;
 import ru.practicum.ewm.entity.Hit;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-
 @Mapper(componentModel = MappingConstants.ComponentModel.SPRING)
 public interface HitMapper {
-    @Mapping(target = "timestamp", expression = "java(this.createdAtToTimestamp(hit.getCreatedAt()))")
+
+    @Mapping(target = "timestamp", source = "createdAt")
     EndpointHit toDto(Hit hit);
 
-    @Mapping(target = "createdAt", expression = "java(this.timestampToLocalDateTime(dto.getTimestamp()))")
+    @Mapping(target = "createdAt", source = "timestamp")
     Hit toEntity(EndpointHit dto);
-
-    default LocalDateTime timestampToLocalDateTime(String timestamp) {
-        return LocalDateTime.parse(timestamp, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-    }
-
-    default String createdAtToTimestamp(LocalDateTime createdAt) {
-        return createdAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
-    }
 }

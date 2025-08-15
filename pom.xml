@@ -25,6 +25,7 @@
 
     <modules>
         <module>stat-svc</module>
+        <module>main-service</module>
     </modules>
 
     <dependencyManagement>
