@@ -18,4 +18,5 @@
         <module>stat-svc-client</module>
         <module>stat-svc-dto</module>
     </modules>
+
 </project>
