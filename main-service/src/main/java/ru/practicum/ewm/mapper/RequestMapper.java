@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
 import ru.practicum.ewm.entity.request.ParticipationRequest;
-import ru.practicum.ewm.entity.request.ParticipationRequest.RequestStatus;
+import ru.practicum.ewm.entity.request.RequestStatus;
 
 @Mapper(componentModel = "spring")
 public interface RequestMapper {

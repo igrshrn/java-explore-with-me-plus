@@ -34,7 +34,4 @@ public class ParticipationRequest {
     @Column(name = "status", length = 20)
     private RequestStatus status = RequestStatus.PENDING;
 
-    public enum RequestStatus {
-        PENDING, CONFIRMED, REJECTED, CANCELED
-    }
 }

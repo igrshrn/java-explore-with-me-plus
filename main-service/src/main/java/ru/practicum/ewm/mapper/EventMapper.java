@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import ru.practicum.ewm.dto.event.*;
 import ru.practicum.ewm.entity.event.Event;
-import ru.practicum.ewm.entity.event.Event.EventState;
+import ru.practicum.ewm.entity.event.EventState;
 
 @Mapper(componentModel = "spring", uses = {CategoryMapper.class, UserMapper.class})
 public interface EventMapper {

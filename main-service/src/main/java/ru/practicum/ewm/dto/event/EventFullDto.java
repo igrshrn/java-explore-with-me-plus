@@ -36,7 +36,7 @@ public class EventFullDto {
     private LocalDateTime eventDate;
 
     private UserShortDto initiator;
-    private Location location;
+    private LocationDto location;
 
     @NotNull
     private Boolean paid;
