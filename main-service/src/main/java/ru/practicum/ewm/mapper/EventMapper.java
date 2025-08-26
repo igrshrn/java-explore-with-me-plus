@@ -4,8 +4,13 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import ru.practicum.ewm.dto.event.*;
+import ru.practicum.ewm.entity.category.Category;
 import ru.practicum.ewm.entity.event.Event;
 import ru.practicum.ewm.entity.event.EventState;
+import ru.practicum.ewm.entity.user.User;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Mapper(componentModel = "spring", uses = {CategoryMapper.class, UserMapper.class})
 public interface EventMapper {
@@ -59,5 +64,19 @@ public interface EventMapper {
 
     default EventState mapStringToEventState(String state) {
         return state != null ? EventState.valueOf(state) : null;
+    }
+
+    public static Event mapToEvent(NewEventDto newEventDto, Category category, User user) {
+        return Event.builder()
+                .annotation(newEventDto.getAnnotation())
+                .category(category)
+                .description(newEventDto.getDescription())
+                .eventDate(newEventDto.getEventDate())
+                .initiator(user)
+                .paid(newEventDto.getPaid())
+                .participantLimit(newEventDto.getParticipantLimit())
+                .requestModeration(newEventDto.getRequestModeration())
+                .title(newEventDto.getTitle())
+                .build();
     }
 }
