@@ -1,5 +1,6 @@
 package ru.practicum.ewm.controller.user;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserDto create(@RequestBody NewUserRequest request) {
+    public UserDto create(@Valid @RequestBody NewUserRequest request) {
         log.info("Получен HTTP-запрос на создание пользователя: {}", request);
         UserDto createdUserDto = userService.create(request);
         log.info("Успешно обработан HTTP-запрос на создание пользователя: {}", createdUserDto);
