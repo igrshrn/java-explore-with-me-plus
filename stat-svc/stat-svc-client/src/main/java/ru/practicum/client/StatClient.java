@@ -33,7 +33,7 @@ public class StatClient extends ResponseGenerator {
     @Value("${stat-svc-service.url}")
     private String statServiceUrl;
 
-    public StatClient(@Value("${stat-svc-service.url}") String statServiceUrl) {
+    public StatClient(@Value("${stat-svc-service.url}")String statServiceUrl) {
         restClient = RestClient.builder()
                 .baseUrl(statServiceUrl)
                 .build();

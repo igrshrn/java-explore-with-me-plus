@@ -1,7 +1,5 @@
 package ru.practicum.ewm.service.event;
 
-
-
 import ru.practicum.ewm.dto.event.EventAdminFilter;
 import ru.practicum.ewm.dto.event.EventFullDto;
 import ru.practicum.ewm.dto.event.UpdateEventAdminRequest;

@@ -2,22 +2,28 @@ package ru.practicum.ewm.entity.event;
 
 import jakarta.persistence.*;
 import lombok.*;
-import lombok.experimental.FieldDefaults;
 
-@Builder
-@AllArgsConstructor
-@NoArgsConstructor
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
+@Table(name = "locations")
 @Getter
 @Setter
-@FieldDefaults(level = AccessLevel.PRIVATE)
-@Table(name = "locations")
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
-    Float lat;
+    @Column(nullable = false)
+    private Float lat;
 
-    Float lon;
+    @Column(nullable = false)
+    private Float lon;
+
+    @OneToMany(mappedBy = "location", fetch = FetchType.LAZY)
+    private List<Event> events = new ArrayList<>();
 }

@@ -34,7 +34,7 @@ import java.util.Optional;
 public class EventPublicServiceImpl implements EventPublicService {
 
     final EventRepository eventRepository;
-    final StatClient statsClient;
+    final StatClient statClient;
     final EventMapper eventMapper;
     private long id = 0;
 
@@ -73,12 +73,23 @@ public class EventPublicServiceImpl implements EventPublicService {
                 .uris(List.of("/events/" + eventId))
                 .unique(true)
                 .build();
-        List<ViewStatDto> stats = statsClient.getStats(statsRequest);
+        List<ViewStatDto> stats = statClient.getStats(statsRequest);
         log.info("Метод getById, длина списка stats: {}", stats.size());
         Long views = stats.isEmpty() ? 0L : stats.getFirst().getHits();
         event.setViews(views);
         log.info("Метод getById, количество сохраняемых просмотров: {}", views);
         return eventMapper.toEventFullDto(event);
+    }
+
+    @Override
+    public Optional<Event> findById(Long eventId) {
+        return eventRepository.findById(eventId);
+    }
+
+    @Override
+    public Event getById(Long eventId) {
+        return findById(eventId)
+                .orElseThrow(() -> new NotFoundException("Событие id = %d не найдено".formatted(eventId)));
     }
 
     private void hit(HttpServletRequest httpServletRequest) {
@@ -89,6 +100,6 @@ public class EventPublicServiceImpl implements EventPublicService {
                 httpServletRequest.getRemoteAddr(),
                 LocalDateTime.now()
         );
-        statsClient.saveHit(hitDtoRequest);
+        statClient.saveHit(hitDtoRequest);
     }
 }

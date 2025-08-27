@@ -15,6 +15,7 @@ import ru.practicum.ewm.mapper.UserMapper;
 import ru.practicum.ewm.repository.user.UserRepository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,5 +58,16 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("Пользователь с id " + userId + " не найден");
         }
         userRepository.deleteById(userId);
+    }
+
+    @Override
+    public Optional<User> findById(Long userId) {
+        return userRepository.findById(userId);
+    }
+
+    @Override
+    public User getById(Long userId) {
+        return findById(userId)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id = %d не найден".formatted(userId)));
     }
 }
