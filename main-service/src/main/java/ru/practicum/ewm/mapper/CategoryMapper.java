@@ -11,8 +11,12 @@ import ru.practicum.ewm.entity.category.Category;
 public interface CategoryMapper {
     CategoryDto toCategoryDto(Category category);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "events", ignore = true)
     Category toCategory(CategoryDto categoryDto);
 
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "events", ignore = true)
     Category toCategory(NewCategoryDto newCategoryDto);
 
     @Mapping(target = "id", ignore = true)

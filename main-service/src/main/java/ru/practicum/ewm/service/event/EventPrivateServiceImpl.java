@@ -23,11 +23,12 @@ import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.mapper.LocationMapper;
 import ru.practicum.ewm.mapper.RequestMapper;
-import ru.practicum.ewm.repository.controller.CategoryRepository;
+import ru.practicum.ewm.repository.category.CategoryRepository;
 import ru.practicum.ewm.repository.event.EventRepository;
 import ru.practicum.ewm.repository.event.LocationRepository;
 import ru.practicum.ewm.repository.request.RequestRepository;
 import ru.practicum.ewm.repository.user.UserRepository;
+import ru.practicum.ewm.service.user.UserService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -47,8 +48,10 @@ public class EventPrivateServiceImpl implements EventPrivateService {
     final UserRepository userRepository;
     final RequestRepository requestRepository;
     final EventMapper eventMapper;
-    final LocationMapper locationMapper;
     final RequestMapper requestMapper;
+    final LocationMapper locationMapper;
+    final UserService userService;
+    final EventPublicService eventPublicService;
 
     @Override
     public List<EventShortDto> getAll(Long userId, Integer from, Integer size) {
@@ -67,10 +70,9 @@ public class EventPrivateServiceImpl implements EventPrivateService {
         }
         Category category = categoryRepository.findById(newEventDto.getCategory())
                 .orElseThrow(() -> new NotFoundException("Категория id = %d не найдена".formatted(newEventDto.getCategory())));
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("Пользователь с id = %d не найден".formatted(userId)));
-        Location location = locationRepository.save(LocationMapper.mapToLocation(newEventDto.getLocation()));
-        Event event = EventMapper.mapToEvent(newEventDto, category, user);
+        User user = userService.getById(userId);
+        Location location = locationRepository.save(locationMapper.toLocation(newEventDto.getLocation()));
+        Event event = eventMapper.toEvent(newEventDto, category, user, location);
         event.setCreatedOn(LocalDateTime.now());
         event.setLocation(location);
         event.setConfirmedRequests(0);
@@ -106,7 +108,7 @@ public class EventPrivateServiceImpl implements EventPrivateService {
             event.setDescription(request.getDescription());
         }
         if (request.getLocation() != null) {
-            event.setLocation(locationRepository.save(LocationMapper.mapToLocation(request.getLocation())));
+            event.setLocation(locationRepository.save(locationMapper.toLocation(request.getLocation())));
         }
         if (request.getPaid() != null) {
             event.setPaid(request.getPaid());
@@ -142,15 +144,11 @@ public class EventPrivateServiceImpl implements EventPrivateService {
 
     @Override
     public List<ParticipationRequestDto> getRequests(Long userId, Long eventId) {
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("Пользователь id = %d не найден".formatted(userId));
-        }
-        Event event = eventRepository.findById(eventId).orElseThrow(() ->
-                new NotFoundException("Событие id = %d не найдено.".formatted(eventId)));
+        userService.getById(userId);
 
-        if (!Objects.equals(event.getInitiator().getId(), userId)) {
-            throw new ValidationException("Пользователь id = %d не является создателем события id = %d".formatted(userId, eventId));
-        }
+        Event event = eventPublicService.getById(eventId);
+        checkInitiator(userId, event);
+
         List<ParticipationRequest> requests = requestRepository.findAllByEventId(eventId);
         return requests.stream()
                 .map(requestMapper::toParticipationRequestDto)
@@ -199,24 +197,30 @@ public class EventPrivateServiceImpl implements EventPrivateService {
     }
 
     private Event checkUpdateEvent(Long userId, Long eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Событие id = %d не найдено".formatted(eventId)));
-        if (!userRepository.existsById(userId)) {
-            throw new NotFoundException("Пользователь id = %d не существует".formatted(userId));
-        }
-        if (!Objects.equals(event.getInitiator().getId(), userId)) {
-            throw new ValidationException("Пользователь id = %d не является создателем события id = %d".formatted(userId, eventId));
-        }
+        Event event = eventPublicService.getById(eventId);
+        userService.getById(userId);
+        checkInitiator(userId, event);
+
         return event;
     }
 
     private void setEventDate(Event event, String date) {
         if (date != null) {
-            if (LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                    .isBefore(LocalDateTime.now())) {
+            String normalizedDate = date.replace('T', ' ');
+            LocalDateTime eventDateTime = LocalDateTime.parse(normalizedDate,
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+
+            if (eventDateTime.isBefore(LocalDateTime.now())) {
                 throw new ValidationException("Указанная дата уже наступила");
             }
-            event.setEventDate(LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            event.setEventDate(eventDateTime);
+        }
+    }
+
+    private void checkInitiator(Long userId, Event event) {
+        if (!Objects.equals(event.getInitiator().getId(), userId)) {
+            throw new ValidationException("Пользователь id = %d не является создателем события id = %d"
+                    .formatted(userId, event.getId()));
         }
     }
 }

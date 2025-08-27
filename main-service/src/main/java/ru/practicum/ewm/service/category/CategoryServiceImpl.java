@@ -10,7 +10,7 @@ import ru.practicum.ewm.entity.category.Category;
 import ru.practicum.ewm.exception.ConflictException;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.CategoryMapper;
-import ru.practicum.ewm.repository.controller.CategoryRepository;
+import ru.practicum.ewm.repository.category.CategoryRepository;
 import ru.practicum.ewm.repository.event.EventRepository;
 
 import java.util.List;

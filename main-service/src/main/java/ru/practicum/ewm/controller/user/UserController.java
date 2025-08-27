@@ -30,8 +30,8 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> get(@RequestParam(required = false) List<Long> ids,
-                                @RequestParam(defaultValue = "0") @PositiveOrZero int from,
-                                @RequestParam(defaultValue = "10") @Positive int size) {
+                             @RequestParam(defaultValue = "0") @PositiveOrZero int from,
+                             @RequestParam(defaultValue = "10") @Positive int size) {
         log.info("Получен HTTP-запрос на получение списка пользователей c ids: {}", ids);
         return userService.getAll(ids, from, size);
     }

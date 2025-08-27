@@ -19,12 +19,13 @@ import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.mapper.LocationMapper;
-import ru.practicum.ewm.repository.controller.CategoryRepository;
+import ru.practicum.ewm.repository.category.CategoryRepository;
 import ru.practicum.ewm.repository.event.EventRepository;
 import ru.practicum.ewm.repository.event.LocationRepository;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Comparator;
 import java.util.List;
 
@@ -38,6 +39,7 @@ public class EventAdminServiceImpl implements EventAdminService {
     final CategoryRepository categoryRepository;
     final LocationRepository locationRepository;
     final EventMapper eventMapper;
+    final LocationMapper locationMapper;
 
     @Override
     public List<EventFullDto> getAll(EventAdminFilter adminFilter, Integer from, Integer size) {
@@ -71,7 +73,7 @@ public class EventAdminServiceImpl implements EventAdminService {
             event.setDescription(request.getDescription());
         }
         if (request.getLocation() != null) {
-            event.setLocation(locationRepository.save(LocationMapper.mapToLocation(request.getLocation())));
+            event.setLocation(locationRepository.save(locationMapper.toLocation(request.getLocation())));
         }
         if (request.getPaid() != null) {
             event.setPaid(request.getPaid());
@@ -94,11 +96,24 @@ public class EventAdminServiceImpl implements EventAdminService {
 
     private void setEventDate(Event event, String date) {
         if (date != null) {
-            if (LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"))
-                    .isBefore(LocalDateTime.now())) {
+            LocalDateTime eventDateTime;
+
+            try {
+                // Пробуем распарсить в ISO формате (с буквой T)
+                eventDateTime = LocalDateTime.parse(date, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            } catch (DateTimeParseException e) {
+                try {
+                    // Пробуем распарсить в формате без T (с пробелом)
+                    eventDateTime = LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+                } catch (DateTimeParseException ex) {
+                    throw new ValidationException("Неверный формат даты. Используйте yyyy-MM-ddTHH:mm:ss или yyyy-MM-dd HH:mm:ss");
+                }
+            }
+
+            if (eventDateTime.isBefore(LocalDateTime.now())) {
                 throw new ValidationException("Указанная дата уже наступила");
             }
-            event.setEventDate(LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            event.setEventDate(eventDateTime);
         }
     }
 
