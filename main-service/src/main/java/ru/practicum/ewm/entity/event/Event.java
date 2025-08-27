@@ -77,7 +77,5 @@ public class Event {
     @ManyToMany(mappedBy = "events")
     private List<Compilation> compilations = new ArrayList<>();
 
-    public enum EventState {
-        PENDING, PUBLISHED, CANCELED
-    }
+
 }
