@@ -18,7 +18,6 @@ import ru.practicum.utils.ResponseGenerator;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -51,8 +50,6 @@ public class StatClient extends ResponseGenerator {
             String msg = "Oшибка при сохранении информации";
             log.error(msg + " {}", e.getMessage(), e);
             return makeResult(ApiError.builder()
-                    .code(500)
-                    .error(msg)
                     .build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -72,7 +69,7 @@ public class StatClient extends ResponseGenerator {
                     .queryParam("unique", request.getUnique());
 
             if (request.getUris() != null && !request.getUris().isEmpty()) {
-                String uris = request.getUris().stream().collect(Collectors.joining(","));
+                String uris = String.join(",", request.getUris());
                 builder.queryParam("uris", uris);
             }
 
