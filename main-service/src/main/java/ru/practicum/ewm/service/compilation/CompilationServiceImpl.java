@@ -1,6 +1,8 @@
 package ru.practicum.ewm.service.compilation;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -20,14 +22,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
 
-    private final CompilationRepository compilationRepository;
-    private final CompilationMapper compilationMapper;
-    private final EventRepository eventRepository;
+    final CompilationRepository compilationRepository;
+    final CompilationMapper compilationMapper;
+    final EventRepository eventRepository;
 
     @Override
     @Transactional

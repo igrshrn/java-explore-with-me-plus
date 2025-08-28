@@ -3,19 +3,23 @@ server:
 
 spring:
   datasource:
-    driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/ewm-db
-    username: postgres
-    password: postgres
+    driverClassName: org.postgresql.Driver
+    url: ${DATASOURCE_URL:jdbc:postgresql://localhost:5432/ewm-db}
+    username: ${DATASOURCE_USERNAME:postgres}
+    password: ${DATASOURCE_PASSWORD:postgres}
   jpa:
     hibernate:
       ddl-auto: none
     properties:
+      defer-datasource-initialization: true
       hibernate:
         format_sql: true
-    sql:
-      init:
-        mode: always
+        show_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
 
 logging:
   level:
@@ -23,6 +27,5 @@ logging:
     org.springframework.transaction: INFO
     org.springframework.transaction.interceptor: TRACE
     org.springframework.orm.jpa.JpaTransactionManager: DEBUG
-
-
-
+    org.hibernate.SQL: DEBUG
+    org.hibernate.tool.schema.internal: DEBUG

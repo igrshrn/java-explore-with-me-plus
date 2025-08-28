@@ -1,4 +1,22 @@
 services:
+  stats-db:
+    image: postgres:16.1
+    ports:
+      - "6542:5432"
+    environment:
+      - POSTGRES_DB=stats_db
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    volumes:
+      - ./data/stats-db:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
   stats-server:
     build: stat-svc/stat-svc-service
     ports:
@@ -15,22 +33,26 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - app-network
 
-  stats-db:
+  ewm-db:
     image: postgres:16.1
     ports:
-      - "6542:5432"
+      - "8432:5432"
     environment:
-      - POSTGRES_DB=stats_db
+      - POSTGRES_DB=ewm-db
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
     volumes:
-      - ./data/stats-db:/var/lib/postgresql/data
+      - ./data/main-service:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d ewm-db" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - app-network
 
   ewm-service:
     build: ./main-service
@@ -43,24 +65,17 @@ services:
     depends_on:
       ewm-db:
         condition: service_healthy
+      stats-server:
+        condition: service_healthy
+    command: [ "sh", "-c", "sleep 30 && java -jar /app.jar" ]
     healthcheck:
       test: [ "CMD", "curl", "-f", "http://localhost:8080/actuator/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
+    networks:
+      - app-network
 
-  ewm-db:
-    image: postgres:16.1
-    ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_DB=ewm-db
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-    volumes:
-      - ./data/main-service:/var/lib/postgresql/data
-    healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-      interval: 5s
-      timeout: 5s
-      retries: 5
+networks:
+  app-network:
+    driver: bridge

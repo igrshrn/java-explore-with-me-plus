@@ -1,6 +1,8 @@
 package ru.practicum.ewm.service.user;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +23,11 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
-    private final UserRepository userRepository;
-    private final UserMapper userMapper;
+    final UserRepository userRepository;
+    final UserMapper userMapper;
 
     @Override
     @Transactional
@@ -48,7 +51,7 @@ public class UserServiceImpl implements UserService {
         }
         return users.stream()
                 .map(userMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Override

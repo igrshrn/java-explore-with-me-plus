@@ -3,6 +3,7 @@ package ru.practicum.ewm.service.event;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -23,11 +24,10 @@ import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.mapper.LocationMapper;
 import ru.practicum.ewm.mapper.RequestMapper;
-import ru.practicum.ewm.repository.category.CategoryRepository;
 import ru.practicum.ewm.repository.event.EventRepository;
 import ru.practicum.ewm.repository.event.LocationRepository;
 import ru.practicum.ewm.repository.request.RequestRepository;
-import ru.practicum.ewm.repository.user.UserRepository;
+import ru.practicum.ewm.service.category.CategoryService;
 import ru.practicum.ewm.service.user.UserService;
 
 import java.time.LocalDateTime;
@@ -37,15 +37,15 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Transactional(readOnly = true)
 public class EventPrivateServiceImpl implements EventPrivateService {
 
     final EventRepository eventRepository;
-    final CategoryRepository categoryRepository;
+    final CategoryService categoryService;
     final LocationRepository locationRepository;
-    final UserRepository userRepository;
     final RequestRepository requestRepository;
     final EventMapper eventMapper;
     final RequestMapper requestMapper;
@@ -68,16 +68,17 @@ public class EventPrivateServiceImpl implements EventPrivateService {
         if (newEventDto.getEventDate().isBefore(LocalDateTime.now())) {
             throw new ValidationException("Указана дата начала события в прошлом");
         }
-        Category category = categoryRepository.findById(newEventDto.getCategory())
-                .orElseThrow(() -> new NotFoundException("Категория id = %d не найдена".formatted(newEventDto.getCategory())));
+        Category category = categoryService.getCategoryById(newEventDto.getCategory());
         User user = userService.getById(userId);
         Location location = locationRepository.save(locationMapper.toLocation(newEventDto.getLocation()));
+
         Event event = eventMapper.toEvent(newEventDto, category, user, location);
         event.setCreatedOn(LocalDateTime.now());
         event.setLocation(location);
         event.setConfirmedRequests(0);
         event.setState(EventState.PENDING);
         Event savedEvent = eventRepository.save(event);
+
         return eventMapper.toEventFullDto(savedEvent);
     }
 
@@ -101,8 +102,7 @@ public class EventPrivateServiceImpl implements EventPrivateService {
             event.setAnnotation(request.getAnnotation());
         }
         if (request.getCategory() != null) {
-            event.setCategory(categoryRepository.findById(request.getCategory().getId()).orElseThrow(() ->
-                    new NotFoundException("Категория с id = %d не найдена.".formatted(request.getCategory().getId()))));
+            event.setCategory(categoryService.getCategoryById(request.getCategory().getId()));
         }
         if (request.getDescription() != null && !request.getDescription().isBlank()) {
             event.setDescription(request.getDescription());
@@ -149,9 +149,9 @@ public class EventPrivateServiceImpl implements EventPrivateService {
         Event event = eventPublicService.getById(eventId);
         checkInitiator(userId, event);
 
-        List<ParticipationRequest> requests = requestRepository.findAllByEventId(eventId);
+        List<ParticipationRequest> requests = requestRepository.findByEventId(eventId);
         return requests.stream()
-                .map(requestMapper::toParticipationRequestDto)
+                .map(requestMapper::toDto)
                 .toList();
     }
 
@@ -188,10 +188,10 @@ public class EventPrivateServiceImpl implements EventPrivateService {
         eventRepository.save(event);
         requestRepository.saveAll(requests);
         List<ParticipationRequestDto> confirmedList = confirmedRequests.stream()
-                .map(requestMapper::toParticipationRequestDto)
+                .map(requestMapper::toDto)
                 .toList();
         List<ParticipationRequestDto> regectedList = rejectedRequests.stream()
-                .map(requestMapper::toParticipationRequestDto)
+                .map(requestMapper::toDto)
                 .toList();
         return new EventRequestStatusUpdateResult(confirmedList, regectedList);
     }

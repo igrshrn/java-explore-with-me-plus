@@ -8,9 +8,13 @@ import ru.practicum.ewm.entity.request.RequestStatus;
 
 @Mapper(componentModel = "spring")
 public interface RequestMapper {
+    @Mapping(target = "event", ignore = true)
+    @Mapping(target = "requester", ignore = true)
+    ParticipationRequest toEntity(ParticipationRequestDto dto);
+
     @Mapping(source = "event.id", target = "event")
     @Mapping(source = "requester.id", target = "requester")
-    ParticipationRequestDto toParticipationRequestDto(ParticipationRequest request);
+    ParticipationRequestDto toDto(ParticipationRequest request);
 
     default String mapRequestStatusToString(RequestStatus status) {
         return status != null ? status.name() : null;
