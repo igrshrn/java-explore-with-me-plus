@@ -15,7 +15,6 @@ import ru.practicum.ewm.dto.ViewStatDto;
 import ru.practicum.ewm.exception.ApiError;
 import ru.practicum.utils.ResponseGenerator;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +32,7 @@ public class StatClient extends ResponseGenerator {
     @Value("${stat-svc-service.url}")
     private String statServiceUrl;
 
-    public StatClient(@Value("${stat-svc-service.url}")String statServiceUrl) {
+    public StatClient(@Value("${stat-svc-service.url}") String statServiceUrl) {
         restClient = RestClient.builder()
                 .baseUrl(statServiceUrl)
                 .build();
@@ -81,7 +80,8 @@ public class StatClient extends ResponseGenerator {
                     .uri(builder.build().toUri())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .toEntity(new ParameterizedTypeReference<>() {});
+                    .toEntity(new ParameterizedTypeReference<>() {
+                    });
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 return response.getBody();

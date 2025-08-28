@@ -22,9 +22,9 @@ public class TestContainer implements ApplicationContextInitializer<Configurable
         container.start();
 
         TestPropertyValues.of(
-            "spring.datasource.url=" + container.getJdbcUrl(),
-            "spring.datasource.username=" + container.getUsername(),
-            "spring.datasource.password=" + container.getPassword()
+                "spring.datasource.url=" + container.getJdbcUrl(),
+                "spring.datasource.username=" + container.getUsername(),
+                "spring.datasource.password=" + container.getPassword()
         ).applyTo(applicationContext);
     }
 
