@@ -38,7 +38,6 @@ public class EventPublicServiceImpl implements EventPublicService {
     final EventRepository eventRepository;
     final StatClient statClient;
     final EventMapper eventMapper;
-    private long id = 0;
 
     @Override
     public List<EventShortDto> getAll(EventPublicFilter publicFilter, Integer from, Integer size,
@@ -95,7 +94,7 @@ public class EventPublicServiceImpl implements EventPublicService {
 
     private void hit(HttpServletRequest httpServletRequest) {
         EndpointHit hitDtoRequest = new EndpointHit(
-                id++,
+                null,
                 "main-server",
                 httpServletRequest.getRequestURI(),
                 httpServletRequest.getRemoteAddr(),

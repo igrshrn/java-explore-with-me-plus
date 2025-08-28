@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class EndpointHit {
-    @NotBlank
     Long id;
 
     @NotBlank
