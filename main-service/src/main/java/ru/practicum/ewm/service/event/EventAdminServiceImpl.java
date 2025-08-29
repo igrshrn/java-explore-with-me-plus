@@ -3,6 +3,7 @@ package ru.practicum.ewm.service.event;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -30,6 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Transactional(readOnly = true)
@@ -99,11 +101,9 @@ public class EventAdminServiceImpl implements EventAdminService {
             LocalDateTime eventDateTime;
 
             try {
-                // Пробуем распарсить в ISO формате (с буквой T)
                 eventDateTime = LocalDateTime.parse(date, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
             } catch (DateTimeParseException e) {
                 try {
-                    // Пробуем распарсить в формате без T (с пробелом)
                     eventDateTime = LocalDateTime.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
                 } catch (DateTimeParseException ex) {
                     throw new ValidationException("Неверный формат даты. Используйте yyyy-MM-ddTHH:mm:ss или yyyy-MM-dd HH:mm:ss");

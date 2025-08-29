@@ -1,9 +1,12 @@
 package ru.practicum.ewm.controller.event;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.event.EventAdminFilter;
 import ru.practicum.ewm.dto.event.EventFullDto;
@@ -17,6 +20,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
+@Validated
 @RequiredArgsConstructor
 @RequestMapping("/admin/events")
 public class EventAdminController {
@@ -31,8 +35,8 @@ public class EventAdminController {
                                         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
                                         @RequestParam(required = false)
                                         @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-                                        @RequestParam(defaultValue = "0") Integer from,
-                                        @RequestParam(defaultValue = "10") Integer size) {
+                                        @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                        @RequestParam(defaultValue = "10") @Positive Integer size) {
         log.info("Запрос на получение событий (admin)");
         if (from < 0 || size <= 0) {
             throw new ValidationException("Некорректные параметры пагинации");
@@ -48,7 +52,8 @@ public class EventAdminController {
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto updateEvent(@Valid @RequestBody UpdateEventAdminRequest request, @PathVariable Long eventId) {
+    public EventFullDto updateEvent(@RequestBody @Valid UpdateEventAdminRequest request,
+                                    @PathVariable @Positive Long eventId) {
         log.info("Запрос на обновление события id = {} и его статуса (admin)", eventId);
         return eventAdminService.update(request, eventId);
     }

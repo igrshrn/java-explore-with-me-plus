@@ -1,6 +1,8 @@
 package ru.practicum.ewm.service.compilation;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -20,14 +22,15 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
+@RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
 
-    private final CompilationRepository compilationRepository;
-    private final CompilationMapper compilationMapper;
-    private final EventRepository eventRepository;
+    final CompilationRepository compilationRepository;
+    final CompilationMapper compilationMapper;
+    final EventRepository eventRepository;
 
     @Override
     @Transactional
@@ -47,8 +50,8 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto update(Long compId, UpdateCompilationRequest request) {
-        Compilation compilation = compilationRepository.findById(compId).
-                orElseThrow(() -> new NotFoundException("Подборка событий с id " + compId + " не найдена"));
+        Compilation compilation = compilationRepository.findById(compId)
+                .orElseThrow(() -> new NotFoundException("Подборка событий с id " + compId + " не найдена"));
 
         if (request.getTitle() != null) {
             compilation.setTitle(request.getTitle());
@@ -96,8 +99,8 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto getById(Long compId) {
-        Compilation compilation = compilationRepository.findById(compId).
-                orElseThrow(() -> new NotFoundException("Подборка событий с id " + compId + " не найдена"));
+        Compilation compilation = compilationRepository.findById(compId)
+                .orElseThrow(() -> new NotFoundException("Подборка событий с id " + compId + " не найдена"));
         return compilationMapper.toCompilationDto(compilation);
     }
 }

@@ -1,11 +1,13 @@
 package ru.practicum.ewm.controller.event;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.event.EventFullDto;
 import ru.practicum.ewm.dto.event.EventPublicFilter;
@@ -19,8 +21,9 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/events")
+@Validated
 @RequiredArgsConstructor
+@RequestMapping("/events")
 public class EventPublicController {
 
     private final EventPublicService eventPublicService;
@@ -37,8 +40,8 @@ public class EventPublicController {
                                          LocalDateTime rangeEnd,
                                          @RequestParam(defaultValue = "false") Boolean onlyAvailable,
                                          @RequestParam(required = false) String sort,
-                                         @RequestParam(defaultValue = "0") @Min(value = 0) Integer from,
-                                         @RequestParam(defaultValue = "10") Integer size,
+                                         @RequestParam(defaultValue = "0") @PositiveOrZero Integer from,
+                                         @RequestParam(defaultValue = "10") @Positive Integer size,
                                          HttpServletRequest httpServletRequest) {
         log.info("Запрос на получение событий с фильтрацией");
         if (from < 0 || size <= 0) {
@@ -57,7 +60,8 @@ public class EventPublicController {
     }
 
     @GetMapping("/{id}")
-    public EventFullDto geEventById(@PathVariable Long id, HttpServletRequest httpServletRequest) {
+    public EventFullDto geEventById(@PathVariable @Positive Long id,
+                                    HttpServletRequest httpServletRequest) {
         log.info("Запрос на получение события id = {}", id);
         return eventPublicService.getById(id, httpServletRequest);
     }

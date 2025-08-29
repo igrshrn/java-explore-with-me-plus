@@ -1,9 +1,13 @@
 package ru.practicum.ewm.service.category;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.category.CategoryDto;
 import ru.practicum.ewm.dto.category.NewCategoryDto;
 import ru.practicum.ewm.entity.category.Category;
@@ -14,16 +18,21 @@ import ru.practicum.ewm.repository.category.CategoryRepository;
 import ru.practicum.ewm.repository.event.EventRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
 
-    private final CategoryRepository categoryRepository;
-    private final EventRepository eventRepository;
-    private final CategoryMapper categoryMapper;
+    final CategoryRepository categoryRepository;
+    final EventRepository eventRepository;
+    final CategoryMapper categoryMapper;
 
     @Override
+    @Transactional
     public CategoryDto create(NewCategoryDto categoryDto) {
         if (categoryRepository.existsByName(categoryDto.getName())) {
             throw new ConflictException("Категория %s уже существует".formatted(categoryDto.getName()));
@@ -33,9 +42,9 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public CategoryDto update(NewCategoryDto categoryDto, Long categoryId) {
-        Category existingCategory = categoryRepository.findById(categoryId).orElseThrow(() ->
-                new NotFoundException("Категория id = %d не найдена".formatted(categoryId)));
+        Category existingCategory = getCategoryById(categoryId);
         if (!existingCategory.getName().equals(categoryDto.getName())) {
             categoryRepository.findByName(categoryDto.getName()).ifPresent(c -> {
                 throw new ConflictException("Категория  %s уже существует".formatted(categoryDto.getName()));
@@ -46,6 +55,7 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    @Transactional
     public void delete(Long categoryId) {
         if (!categoryRepository.existsById(categoryId)) {
             throw new NotFoundException("Категория id = %d не найдена".formatted(categoryId));
@@ -67,8 +77,18 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto getById(Long categoryId) {
-        Category category = categoryRepository.findById(categoryId).orElseThrow(() ->
-                new NotFoundException("Категория id = %d не найдена".formatted(categoryId)));
+        Category category = getCategoryById(categoryId);
         return categoryMapper.toCategoryDto(category);
+    }
+
+    @Override
+    public Optional<Category> findById(Long categoryId) {
+        return categoryRepository.findById(categoryId);
+    }
+
+    @Override
+    public Category getCategoryById(Long categoryId) {
+        return findById(categoryId)
+                .orElseThrow(() -> new NotFoundException("Категория id = %d не найдена".formatted(categoryId)));
     }
 }

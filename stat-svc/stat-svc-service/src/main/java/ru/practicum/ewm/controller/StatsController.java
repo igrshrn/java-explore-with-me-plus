@@ -9,6 +9,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.dto.EndpointHit;
 import ru.practicum.ewm.dto.ViewStats;
+import ru.practicum.ewm.exception.BadRequestException;
 import ru.practicum.ewm.service.StatsService;
 
 import java.time.LocalDateTime;
@@ -34,7 +35,9 @@ public class StatsController {
                                     @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                     @RequestParam(required = false) List<String> uris,
                                     @RequestParam(required = false, defaultValue = "false") boolean unique) {
-
+        if (start.isAfter(end)) {
+            throw new BadRequestException("Дата начала не может быть после даты окончания");
+        }
         log.info("GET /stats: start={}, end={}, uris={}, unique={}", start, end, uris, unique);
         return statsService.getStats(start, end, uris, unique);
     }

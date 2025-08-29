@@ -9,6 +9,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.client.StatClient;
 import ru.practicum.ewm.dto.EndpointHit;
 import ru.practicum.ewm.dto.StatRequest;
@@ -27,16 +28,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-@Slf4j
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Transactional(readOnly = true)
 public class EventPublicServiceImpl implements EventPublicService {
 
     final EventRepository eventRepository;
     final StatClient statClient;
     final EventMapper eventMapper;
-    private long id = 0;
 
     @Override
     public List<EventShortDto> getAll(EventPublicFilter publicFilter, Integer from, Integer size,
@@ -61,8 +62,7 @@ public class EventPublicServiceImpl implements EventPublicService {
 
     @Override
     public EventFullDto getById(Long eventId, HttpServletRequest httpServletRequest) {
-        Event event = eventRepository.findById(eventId).orElseThrow(() ->
-                new NotFoundException("Событие id = %d не найдено".formatted(eventId)));
+        Event event = getById(eventId);
         if (event.getState() != EventState.PUBLISHED) {
             throw new NotFoundException("getById: Событие id = %d не опубликовано".formatted(eventId));
         }
@@ -94,7 +94,7 @@ public class EventPublicServiceImpl implements EventPublicService {
 
     private void hit(HttpServletRequest httpServletRequest) {
         EndpointHit hitDtoRequest = new EndpointHit(
-                id++,
+                null,
                 "main-server",
                 httpServletRequest.getRequestURI(),
                 httpServletRequest.getRemoteAddr(),
