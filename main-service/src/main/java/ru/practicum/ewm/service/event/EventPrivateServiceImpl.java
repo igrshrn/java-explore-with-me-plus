@@ -1,9 +1,6 @@
 package ru.practicum.ewm.service.event;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -37,21 +34,19 @@ import java.util.List;
 import java.util.Objects;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Transactional(readOnly = true)
 public class EventPrivateServiceImpl implements EventPrivateService {
 
-    final EventRepository eventRepository;
-    final CategoryService categoryService;
-    final LocationRepository locationRepository;
-    final RequestRepository requestRepository;
-    final EventMapper eventMapper;
-    final RequestMapper requestMapper;
-    final LocationMapper locationMapper;
-    final UserService userService;
-    final EventPublicService eventPublicService;
+    private final EventRepository eventRepository;
+    private final CategoryService categoryService;
+    private final LocationRepository locationRepository;
+    private final RequestRepository requestRepository;
+    private final EventMapper eventMapper;
+    private final RequestMapper requestMapper;
+    private final LocationMapper locationMapper;
+    private final UserService userService;
+    private final EventPublicService eventPublicService;
 
     @Override
     public List<EventShortDto> getAll(Long userId, Integer from, Integer size) {

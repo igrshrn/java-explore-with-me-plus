@@ -1,7 +1,9 @@
 package ru.practicum.ewm.dto.event;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import ru.practicum.ewm.entity.event.EventState;
 import ru.practicum.ewm.exception.ValidationException;
 
@@ -12,13 +14,12 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventAdminFilter {
-    List<Long> userIds;
-    List<EventState> states;
-    List<Long> categoryIds;
-    LocalDateTime rangeStart;
-    LocalDateTime rangeEnd;
+    private List<Long> userIds;
+    private List<EventState> states;
+    private List<Long> categoryIds;
+    private LocalDateTime rangeStart;
+    private LocalDateTime rangeEnd;
 
     public void validateDates() {
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {

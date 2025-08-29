@@ -1,7 +1,9 @@
 package ru.practicum.ewm.dto.event;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import ru.practicum.ewm.entity.event.EventSort;
 import ru.practicum.ewm.exception.ValidationException;
 
@@ -12,15 +14,14 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class EventPublicFilter {
-    String text;
-    List<Long> categoryIds;
-    Boolean paid;
-    LocalDateTime rangeStart;
-    LocalDateTime rangeEnd;
-    Boolean onlyAvailable;
-    EventSort sort;
+    private String text;
+    private List<Long> categoryIds;
+    private Boolean paid;
+    private LocalDateTime rangeStart;
+    private LocalDateTime rangeEnd;
+    private Boolean onlyAvailable;
+    private EventSort sort;
 
     public void validateDates() {
         if (rangeStart != null && rangeEnd != null && rangeStart.isAfter(rangeEnd)) {
