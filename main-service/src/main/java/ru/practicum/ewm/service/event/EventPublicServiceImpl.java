@@ -1,9 +1,7 @@
 package ru.practicum.ewm.service.event;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -31,13 +29,12 @@ import java.util.Optional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Transactional(readOnly = true)
 public class EventPublicServiceImpl implements EventPublicService {
 
-    final EventRepository eventRepository;
-    final StatClient statClient;
-    final EventMapper eventMapper;
+    private final EventRepository eventRepository;
+    private final StatClient statClient;
+    private final EventMapper eventMapper;
 
     @Override
     public List<EventShortDto> getAll(EventPublicFilter publicFilter, Integer from, Integer size,

@@ -1,9 +1,6 @@
 package ru.practicum.ewm.service.request;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.ewm.dto.request.ParticipationRequestDto;
@@ -24,16 +21,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Transactional(readOnly = true)
 public class RequestServiceImpl implements RequestService {
 
-    final RequestRepository requestRepository;
-    final UserService userService;
-    final EventPublicService eventPublicService;
-    final RequestMapper requestMapper;
+    private final RequestRepository requestRepository;
+    private final UserService userService;
+    private final EventPublicService eventPublicService;
+    private final RequestMapper requestMapper;
 
     @Override
     public Optional<ParticipationRequest> findById(Long requestId) {

@@ -1,9 +1,6 @@
 package ru.practicum.ewm.service.event;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -31,17 +28,15 @@ import java.util.Comparator;
 import java.util.List;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 @Transactional(readOnly = true)
 public class EventAdminServiceImpl implements EventAdminService {
 
-    final EventRepository eventRepository;
-    final CategoryRepository categoryRepository;
-    final LocationRepository locationRepository;
-    final EventMapper eventMapper;
-    final LocationMapper locationMapper;
+    private final EventRepository eventRepository;
+    private final CategoryRepository categoryRepository;
+    private final LocationRepository locationRepository;
+    private final EventMapper eventMapper;
+    private final LocationMapper locationMapper;
 
     @Override
     public List<EventFullDto> getAll(EventAdminFilter adminFilter, Integer from, Integer size) {
