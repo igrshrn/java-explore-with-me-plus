@@ -10,11 +10,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import ru.practicum.ewm.dto.EndpointHit;
+import ru.practicum.ewm.dto.StatRequest;
+import ru.practicum.ewm.dto.ViewStatDto;
 import ru.practicum.ewm.exception.ApiError;
 import ru.practicum.utils.ResponseGenerator;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
 
 @Component
@@ -25,6 +27,9 @@ public class StatClient extends ResponseGenerator {
 
     private static final DateTimeFormatter FORMATTER =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    @Value("${stat-svc-service.url}")
+    private String statServiceUrl;
 
     public StatClient(@Value("${stat-svc-service.url}") String statServiceUrl) {
         restClient = RestClient.builder()
@@ -45,39 +50,46 @@ public class StatClient extends ResponseGenerator {
             String msg = "Oшибка при сохранении информации";
             log.error(msg + " {}", e.getMessage(), e);
             return makeResult(ApiError.builder()
-                    .code(500)
-                    .error(msg)
                     .build(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public ResponseEntity<Object> getStats(LocalDateTime start,
-                                    LocalDateTime end,
-                                    List<String> uris,
-                                    boolean unique) {
-        try {
-            log.info("Запрос статистики {}", start);
-            UriComponentsBuilder builder = UriComponentsBuilder.fromPath("/stats")
-                    .queryParam("start", start.format(FORMATTER))
-                    .queryParam("end", end.format(FORMATTER))
-                    .queryParam("unique", unique);
+    public List<ViewStatDto> getStats(StatRequest request) {
+        if (request == null || !request.isValid()) {
+            log.warn("Некорректные параметры запроса статистики");
+            return Collections.emptyList();
+        }
 
-            if (uris != null && !uris.isEmpty()) {
-                builder.queryParam("uris", uris.toArray());
+        try {
+            log.info("Запрос статистики {}", request);
+
+            UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(statServiceUrl + "/stats")
+                    .queryParam("start", request.getStart().format(FORMATTER))
+                    .queryParam("end", request.getEnd().format(FORMATTER))
+                    .queryParam("unique", request.getUnique());
+
+            if (request.getUris() != null && !request.getUris().isEmpty()) {
+                String uris = String.join(",", request.getUris());
+                builder.queryParam("uris", uris);
             }
 
-            return makeResult(restClient.get()
+            ResponseEntity<List<ViewStatDto>> response = restClient.get()
                     .uri(builder.build().toUri())
                     .accept(MediaType.APPLICATION_JSON)
                     .retrieve()
-                    .body(new ParameterizedTypeReference<>() {}), HttpStatus.OK);
+                    .toEntity(new ParameterizedTypeReference<>() {
+                    });
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return response.getBody();
+            } else {
+                log.error("Ошибка при получении статистики: {}", response.getStatusCode());
+                return Collections.emptyList(); // Или выбросить исключение, в зависимости от требований
+            }
+
         } catch (Exception e) {
-            String msg = "Oшибка при получении статистики";
-            log.error(msg + " {}", e.getMessage(), e);
-            return makeResult(ApiError.builder()
-                            .code(500)
-                            .error(msg),
-                    HttpStatus.INTERNAL_SERVER_ERROR);
+            log.error("Ошибка при запросе статистики: {}", e.getMessage());
+            return Collections.emptyList(); // Или выбросить исключение, в зависимости от требований
         }
     }
 }
