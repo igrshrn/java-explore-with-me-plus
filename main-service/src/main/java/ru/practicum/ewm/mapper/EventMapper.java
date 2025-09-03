@@ -18,10 +18,12 @@ public interface EventMapper {
     @Mapping(source = "initiator", target = "initiator")
     @Mapping(source = "location", target = "location")
     @Mapping(source = "state", target = "state", qualifiedByName = "mapEventStateToString")
+    @Mapping(target = "commentsCount", ignore = true)
     EventFullDto toEventFullDto(Event event);
 
     @Mapping(source = "category", target = "category")
     @Mapping(source = "initiator", target = "initiator")
+    @Mapping(target = "commentsCount", ignore = true)
     EventShortDto toEventShortDto(Event event);
 
     @Mapping(target = "id", ignore = true)
