@@ -9,7 +9,7 @@ spring:
     password: ${DATASOURCE_PASSWORD:postgres}
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       defer-datasource-initialization: true
       hibernate:

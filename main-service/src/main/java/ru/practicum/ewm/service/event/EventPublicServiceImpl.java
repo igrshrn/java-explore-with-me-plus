@@ -21,6 +21,7 @@ import ru.practicum.ewm.entity.event.EventState;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.mapper.EventMapper;
 import ru.practicum.ewm.repository.event.EventRepository;
+import ru.practicum.ewm.service.comment.CommentCountService;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,6 +36,7 @@ public class EventPublicServiceImpl implements EventPublicService {
     private final EventRepository eventRepository;
     private final StatClient statClient;
     private final EventMapper eventMapper;
+    private final CommentCountService commentCountService;
 
     @Override
     public List<EventShortDto> getAll(EventPublicFilter publicFilter, Integer from, Integer size,
@@ -75,7 +77,12 @@ public class EventPublicServiceImpl implements EventPublicService {
         Long views = stats.isEmpty() ? 0L : stats.getFirst().getHits();
         event.setViews(views);
         log.info("Метод getById, количество сохраняемых просмотров: {}", views);
-        return eventMapper.toEventFullDto(event);
+
+        EventFullDto eventFullDto = eventMapper.toEventFullDto(event);
+        Long commentsCount = commentCountService.getCountPublishedCommentsByEventId(eventId);
+        eventFullDto.setCommentsCount(commentsCount);
+
+        return eventFullDto;
     }
 
     @Override
